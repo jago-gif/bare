@@ -1,0 +1,8 @@
+/target
+
+# documentos personales no relacionados al proyecto
+certificado_deuda_*
+documentos_adeudados_*
+liquidacion-*.pdf
+reporte_oirs.xls
+generar
