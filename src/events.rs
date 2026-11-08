@@ -6,6 +6,14 @@ pub const BROWSER_ARGS: &str = "--disable-features=msWebOOUI,msPdfOOUI,msSmartSc
 --renderer-process-limit=4 \
 --disable-gpu";
 
+#[derive(Clone, Copy, Debug)]
+pub enum Shortcut {
+    NewTab,
+    CloseTab,
+    FocusBar,
+    Reload,
+}
+
 #[derive(Clone, Debug)]
 pub enum UserEvent {
     ChromeIpc(String),
@@ -15,6 +23,7 @@ pub enum UserEvent {
     NewWindow(String),
     ListsReady,
     BlocksChanged(u64),
+    Shortcut(Shortcut),
 }
 
 #[derive(Deserialize, Debug)]

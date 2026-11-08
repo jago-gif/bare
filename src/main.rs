@@ -4,6 +4,7 @@ mod blocker;
 mod chrome;
 mod events;
 mod net_interceptor;
+mod shortcuts;
 mod store;
 mod tabs;
 
@@ -25,7 +26,8 @@ fn window_icon() -> tao::window::Icon {
 fn init_logging(data_dir: &std::path::Path) {
     let logs_dir = data_dir.join("logs");
     let _ = std::fs::create_dir_all(&logs_dir);
-    let level = if cfg!(debug_assertions) {
+    let debug_env = std::env::var("BARE_DEBUG").is_ok();
+    let level = if cfg!(debug_assertions) || debug_env {
         simplelog::LevelFilter::Debug
     } else {
         simplelog::LevelFilter::Info
@@ -82,6 +84,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let proxy_adblock = proxy.clone();
     blocker::startup(proxy_adblock);
+
+    let proxy_short = proxy.clone();
+    shortcuts::install(proxy_short);
 
     let db_path = data_dir.join("bare.db");
     let store = store::Store::open(&db_path)?;

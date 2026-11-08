@@ -4,7 +4,7 @@ pub const CHROME_HTML: &str = r#"<!doctype html>
 <meta charset="utf-8">
 <style>
 html,body{margin:0;height:100%;background:#1e1f22;color:#e6e6e6;font:13px 'Segoe UI',system-ui,sans-serif;overflow:hidden;user-select:none}
-#bar{display:flex;align-items:center;height:44px;padding:0 10px;gap:6px}
+#bar{display:flex;align-items:center;height:44px;padding:0 10px;gap:6px;position:relative}
 #tabs{display:flex;align-items:center;gap:4px;min-width:0;flex:1;height:100%}
 .tab{display:flex;align-items:center;gap:6px;padding:0 10px;height:30px;border-radius:8px;background:#2b2d31;max-width:220px;min-width:0;white-space:nowrap}
 .tab.active{background:#3d3f45}
@@ -18,6 +18,7 @@ button:disabled{opacity:.35}
 #omni{flex:1;margin-left:4px;height:30px;border-radius:15px;border:0;padding:0 12px;background:#15161a;color:#e6e6e6;font-size:13px}
 #omni:focus{outline:1px solid #4c8bf5}
 #shield{padding:0 10px;height:30px;border-radius:15px;background:#15161a;display:none;align-items:center;font-size:12px;color:#79c76f;white-space:nowrap}
+#prog{position:absolute;left:0;bottom:0;height:2px;width:100%;background:linear-gradient(90deg,#4c8bf5,#79c76f);display:none;animation:none}
 #star{color:#e6e6e6}
 #star.on{color:#f5c451}
 #panel{position:absolute;top:44px;left:0;right:0;bottom:0;background:#26272b;padding:12px 16px;display:none;flex-direction:column;z-index:20;overflow:auto}
@@ -52,6 +53,7 @@ button:disabled{opacity:.35}
     <button id="star" onclick="post({cmd:'toggle-bookmark'})">&#9733;</button>
     <button id="panelbtn" onclick="post({cmd:'open-panel'})">&#9776;</button>
   </div>
+  <div id="prog"></div>
 </div>
 <div id="panel">
   <div class="head">
@@ -127,6 +129,9 @@ window.addEventListener('keydown',e=>{
     else if(k==='r'&&document.activeElement!==omni){e.preventDefault();post({cmd:'reload'});}
   }
 });
+function focusOmnibox(){ omni.focus(); omni.select(); }
+const prog=document.getElementById('prog');
+function setProgress(on){ prog.style.display=on?'block':'none'; }
 </script>
 </body>
 </html>

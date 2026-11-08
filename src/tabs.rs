@@ -203,6 +203,7 @@ impl AppState {
     }
 
     pub fn set_background(&mut self, unfocused: bool) {
+        log::info!("set_background(unfocused={unfocused})");
         let background = if unfocused {
             MemoryUsageLevel::Low
         } else {
@@ -272,7 +273,7 @@ impl AppState {
         for id in ids {
             if let Some(tab) = self.tabs.get_mut(&id) {
                 tab.hibernated = true;
-                log::debug!("adblock/hibernacion: pestaña {id} a about:blank ({})", tab.url);
+                log::info!("hibernando pestaña {id}: {}", tab.url);
                 let _ = tab.webview.load_url("about:blank");
             }
         }
@@ -302,6 +303,9 @@ impl AppState {
             UserEvent::PageStarted(id, url) => {
                 blocker::reset_count(id);
                 self.update_url(id, url);
+                if id == self.active {
+                    let _ = self.chrome.evaluate_script("setProgress(true);");
+                }
             }
             UserEvent::PageFinished(id, url) => {
                 if let Some(tab) = self.tabs.get(&id) {
@@ -311,6 +315,9 @@ impl AppState {
                             self.send_panel_update();
                         }
                     }
+                }
+                if id == self.active {
+                    let _ = self.chrome.evaluate_script("setProgress(false);");
                 }
                 self.inject_cosmetics(id, &url);
                 self.update_url(id, url);
@@ -323,6 +330,20 @@ impl AppState {
             UserEvent::NewWindow(url) => {
                 let _ = self.new_tab(Some(url));
             }
+            UserEvent::Shortcut(s) => match s {
+                events::Shortcut::NewTab => {
+                    let _ = self.new_tab(None);
+                }
+                events::Shortcut::CloseTab => self.close_tab(self.active),
+                events::Shortcut::FocusBar => {
+                    let _ = self.chrome.evaluate_script("focusOmnibox();");
+                }
+                events::Shortcut::Reload => {
+                    if let Some(tab) = self.tabs.get(&self.active) {
+                        let _ = tab.webview.reload();
+                    }
+                }
+            },
         }
     }
 
